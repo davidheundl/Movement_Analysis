@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "Movement Analysis",
+    "slug": "movement-analysis",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#050506"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Diese App benötigt Zugriff auf deine Fotos, um Videos für die Bewegungsanalyse hochzuladen.",
+        "NSCameraUsageDescription": "Diese App benötigt Zugriff auf die Kamera, um Videos für die Bewegungsanalyse aufzunehmen."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#050506"
+      },
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.CAMERA"
+      ],
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Diese App benötigt Zugriff auf deine Fotos, um Videos für die Bewegungsanalyse hochzuladen."
+        }
+      ]
+    ]
+  }
+}
