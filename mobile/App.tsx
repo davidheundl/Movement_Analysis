@@ -35,17 +35,16 @@ const mockEvaluations = [
 ];
 
 const mockRecs = [
-  'Höhere Rumpfspannung während der Aufwärtsbewegung',
-  'Schultern entspannt halten, um unnötige Rotation zu vermeiden',
-  'Leichtes Vorverlagern des Körperschwerpunkts vor dem Absprung'
+  'Higher core engagement during the upward movement',
+  'Keep shoulders relaxed to avoid unnecessary rotation',
+  'Slight forward shift of body weight before the jump'
 ];
 
 const AnalysisSummary = () => (
   <View style={styles.card}>
-    <Text style={styles.cardTitle}>KI-Auswertung</Text>
+    <Text style={styles.cardTitle}>Feedback</Text>
     <Text style={styles.description}>
-      Das Machine-Learning-Modell bewertet jede Bewegung auf Präzision, Kraft und
-      Stabilität. Die Visualisierung unten zeigt Trends über die letzten Durchläufe.
+      A versatile, trained machine learning model evaluates the uploaded video and assesses your posture, movement sequences, and body dynamics.
     </Text>
     <View style={styles.summaryGrid}>
       {mockEvaluations.map((item) => (
@@ -63,7 +62,7 @@ const AnalysisSummary = () => (
 
 const Recommendations = () => (
   <View style={styles.card}>
-    <Text style={styles.cardTitle}>Persönliche Empfehlungen</Text>
+    <Text style={styles.cardTitle}>Improvement Suggestions</Text>
     {mockRecs.map((rec, index) => (
       <Text key={index} style={styles.recItem}>• {rec}</Text>
     ))}
@@ -71,11 +70,11 @@ const Recommendations = () => (
 );
 
 export default function App() {
-  const API_BASE = 'http://localhost:8000'; // Für Expo Go auf physischem Gerät: IP-Adresse verwenden
+  const API_BASE = 'http://192.168.178.35:8000'; // Für Expo Go auf physischem Gerät: IP-Adresse verwenden
   const [videoUri, setVideoUri] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [analysisState, setAnalysisState] = useState<'idle' | 'pending' | 'done'>('idle');
-  const [feedback, setFeedback] = useState<string>('Warte auf Upload...');
+  const [feedback, setFeedback] = useState<string>('Waiting for upload...');
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [annotatedVideoUrl, setAnnotatedVideoUrl] = useState<string | null>(null);
@@ -95,21 +94,21 @@ export default function App() {
         setVideoUri(result.assets[0].uri);
         setFileName(result.assets[0].fileName || 'video.mp4');
         setAnalysisState('idle');
-        setFeedback('Video bereit für die Analyse.');
+        setFeedback('Ready for analysis');
         setAnalysisResult(null);
         setError(null);
         setAnnotatedVideoUrl(null);
         setKeypointSamples([]);
       }
     } catch (err) {
-      Alert.alert('Fehler', 'Video konnte nicht ausgewählt werden');
+      Alert.alert('Error', 'Failed to load video');
     }
   };
 
   const triggerAnalysis = async () => {
     if (!videoUri) return;
     setAnalysisState('pending');
-    setFeedback('Video wird ans Backend geschickt...');
+    setFeedback('Video is beeing evaluated by machine learnig modell');
     setError(null);
     setAnalysisResult(null);
     setAnnotatedVideoUrl(null);
@@ -138,38 +137,38 @@ export default function App() {
       const json = await response.json();
 
       if (!response.ok) {
-        throw new Error(json?.message ?? 'Upload fehlgeschlagen');
+        throw new Error(json?.message ?? 'Upload failed');
       }
 
       const normalizedBase = API_BASE.replace(/\/$/, '');
       const annotatedName = json.annotated ? `${normalizedBase}/uploads/${json.annotated}` : null;
       setAnalysisResult({
-        filename: json.filename ?? 'unbekannt',
-        message: json.message ?? 'Upload erfolgreich',
+        filename: json.filename ?? 'unknown',
+        message: json.message ?? 'Upload complete',
         annotated: json.annotated ?? undefined
       });
       setAnnotatedVideoUrl(annotatedName);
       setKeypointSamples(json.keypoints ?? []);
       setFeedback(
-        `Backend: ${json.message ?? 'Datei gespeichert'}` +
-          (annotatedName ? ' — Annotiertes Video verfügbar' : '')
+        `Backend: ${json.message ?? 'File saved successfully'}` +
+          (annotatedName ? ' — Annotated video available' : '')
       );
       setAnalysisState('done');
     } catch (caught) {
-      const errorMsg = caught instanceof Error ? caught.message : 'Unbekannter Fehler';
+      const errorMsg = caught instanceof Error ? caught.message : 'Unknown error';
       setError(errorMsg);
-      setFeedback('Upload fehlgeschlagen. Bitte erneut versuchen.');
+      setFeedback('Upload failed. Please try again.');
       setAnalysisState('idle');
-      Alert.alert('Fehler', errorMsg);
+      Alert.alert('Error', errorMsg);
     }
   };
 
-  const progressSteps = ['Upload', 'Analyse', 'Insights'];
+  const progressSteps = ['Upload'];
   const currentStep = useMemo(() => {
     if (analysisState === 'pending') return 1;
     if (analysisState === 'done') return 2;
     return 0;
-  }, [analysisState]);
+  }, [analysisState])
   const firstSample = keypointSamples[0] ?? [];
 
   return (
@@ -178,25 +177,25 @@ export default function App() {
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <Text style={styles.eyebrow}>Movement Lab</Text>
-          <Text style={styles.title}>AI-gestützte Bewegungsanalyse</Text>
+          <Text style={styles.title}>Machine Learning Movement Analysis</Text>
           <Text style={styles.subtitle}>
-            Filme dich mit deinem iPhone, lade die Aufnahme hoch, und erhalte sofortiges Feedback.
+            Record yourself with your iPhone, upload the recording, and get instant feedback.
           </Text>
         </View>
 
         <View style={styles.uploadCard}>
           <View style={styles.uploadStatus}>
-            <Text style={styles.statusLabel}>Aktueller Status</Text>
+            <Text style={styles.statusLabel}>Current Status</Text>
             <View style={styles.statusPill}>
               <Text style={styles.statusPillText}>
-                {analysisState === 'pending' ? 'Analyse läuft' : 'Bereit'}
+                {analysisState === 'pending' ? 'Analysis in progress' : 'Ready'}
               </Text>
             </View>
           </View>
 
           <TouchableOpacity style={styles.fileInput} onPress={pickVideo}>
             <Text style={styles.fileInputText}>
-              {fileName ? fileName : 'Video auswählen'}
+              {fileName ? fileName : 'Upload Video'}
             </Text>
           </TouchableOpacity>
 
@@ -209,7 +208,7 @@ export default function App() {
               {analysisState === 'pending' ? (
                 <ActivityIndicator color="#050506" />
               ) : (
-                <Text style={styles.primaryButtonText}>Analyse starten</Text>
+                <Text style={styles.primaryButtonText}>Start Analysis</Text>
               )}
             </TouchableOpacity>
             <TouchableOpacity
@@ -217,7 +216,7 @@ export default function App() {
               disabled={!videoUri}
               onPress={() => setVideoUri(null)}
             >
-              <Text style={styles.ghostButtonText}>Zurücksetzen</Text>
+              <Text style={styles.ghostButtonText}>Reset</Text>
             </TouchableOpacity>
           </View>
 
@@ -227,9 +226,6 @@ export default function App() {
                 key={label}
                 style={[styles.step, index <= currentStep && styles.stepActive]}
               >
-                <Text style={[styles.stepNumber, index <= currentStep && styles.stepNumberActive]}>
-                  {index + 1}
-                </Text>
                 <Text style={[styles.stepLabel, index <= currentStep && styles.stepLabelActive]}>
                   {label}
                 </Text>
@@ -243,18 +239,18 @@ export default function App() {
                 source={{ uri: videoUri }}
                 style={styles.video}
                 useNativeControls
-                resizeMode={ResizeMode.CONTAIN}
+                resizeMode={ResizeMode.COVER}
                 isLooping
               />
               <Text style={styles.feedbackText}>{feedback}</Text>
               {error && (
                 <View style={styles.errorMessage}>
-                  <Text style={styles.errorText}>Fehler: {error}</Text>
+                  <Text style={styles.errorText}>Error: {error}</Text>
                 </View>
               )}
               {analysisResult && (
                 <View style={styles.analysisResult}>
-                  <Text style={styles.analysisResultTitle}>Analyse-Ergebnis</Text>
+                  <Text style={styles.analysisResultTitle}>Analysis Result</Text>
                   <Text style={styles.analysisResultText}>
                     Status: {analysisResult.message}
                   </Text>
@@ -266,16 +262,16 @@ export default function App() {
           {annotatedVideoUrl && (
             <View style={styles.annotatedCard}>
               <View style={styles.annotatedHeader}>
-                <Text style={styles.annotatedTitle}>Annotiertes Video</Text>
+                <Text style={styles.annotatedTitle}>Annotated Video</Text>
                 <Text style={styles.annotatedSubtitle}>
-                  Jede Pose wurde von Mediapipes Google-Modell markiert.
+                  Each pose was marked by MediaPipe's Google model.
                 </Text>
               </View>
               <Video
                 source={{ uri: annotatedVideoUrl }}
                 style={styles.video}
                 useNativeControls
-                resizeMode={ResizeMode.CONTAIN}
+                resizeMode={ResizeMode.COVER}
                 isLooping
               />
               {firstSample.length > 0 && (
@@ -286,7 +282,7 @@ export default function App() {
                         {point.name.replace(/_/g, ' ')}
                       </Text>
                       <Text style={styles.keypointMeta}>
-                        Sichtbarkeit: {(point.visibility * 100).toFixed(0)}%
+                        Visibility: {(point.visibility * 100).toFixed(0)}%
                       </Text>
                     </View>
                   ))}
@@ -301,7 +297,7 @@ export default function App() {
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            Verwende Expo Go auf deinem iPhone, um diese App zu testen.
+            Use Expo Go on your iPhone to test this app.
           </Text>
         </View>
       </ScrollView>
@@ -459,7 +455,7 @@ const styles = StyleSheet.create({
   },
   video: {
     width: '100%',
-    height: 300,
+    aspectRatio: 9 / 16,
     borderRadius: 14,
   },
   feedbackText: {
