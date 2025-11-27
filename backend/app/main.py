@@ -38,7 +38,13 @@ def analyze_video(video_path: Path) -> Tuple[str, List[List[dict]]]:
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) or 480
     fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
     annotated_path = video_path.with_name(f"{video_path.stem}_annotated{video_path.suffix}")
-    writer = cv2.VideoWriter(str(annotated_path), cv2.VideoWriter_fourcc(*"mp4v"), fps, (width, height))
+    rotated_width, rotated_height = height, width
+    writer = cv2.VideoWriter(
+        str(annotated_path),
+        cv2.VideoWriter_fourcc(*"mp4v"),
+        fps,
+        (rotated_width, rotated_height),
+    )
 
     mp_pose = mp.solutions.pose
     mp_drawing = mp.solutions.drawing_utils
@@ -77,7 +83,8 @@ def analyze_video(video_path: Path) -> Tuple[str, List[List[dict]]]:
                         ]
                     )
 
-            writer.write(frame)
+            rotated_frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+            writer.write(rotated_frame)
             frame_index += 1
 
     cap.release()
