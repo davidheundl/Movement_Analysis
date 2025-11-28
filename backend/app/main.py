@@ -41,7 +41,7 @@ def analyze_video(video_path: Path) -> Tuple[str, List[List[dict]]]:
     rotated_width, rotated_height = height, width
     writer = cv2.VideoWriter(
         str(annotated_path),
-        cv2.VideoWriter_fourcc(*"mp4v"),
+        cv2.VideoWriter_fourcc(*"avc1"),
         fps,
         (rotated_width, rotated_height),
     )
